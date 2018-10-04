@@ -11,7 +11,7 @@ json_object = get_json_object(json_file)
 
 # Testing soup functionality
 soup = Soup(my_url)
-soup_text = str(soup.text)
+soup_text = str(soup.get_text())
 p_canales = dict(json_object['cable'])
 for keywords in p_canales.values():
     for keyword in keywords:
