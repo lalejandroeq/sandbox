@@ -2,3 +2,5 @@ __pycache__
 configuration_files
 .idea
 venv
+regex_cheatsheet.txt
+support_files
