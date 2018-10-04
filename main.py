@@ -19,11 +19,10 @@ def get_relational_tags(url, parser='lxml', filters_list=None):
 
 my_url = "https://movistar.cr/tv"
 
-# Testing soup functionality
-
-soup = Soup(my_url)
-soup_text = soup.text
-print(soup_text)
+# # Testing soup functionality
+# soup = Soup(my_url)
+# soup_text = soup.text
+# print(soup_text)
 
 # # Testing hidden tags filters
 # filter_list = ['[style="display: none;"]']
