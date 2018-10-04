@@ -27,9 +27,6 @@ class Soup(Sauce):
         self.__parser = parser
         self.__filters_list = filters_list
         self.__beautiful_soup = self.__get_soup()
-        self.tags = self.__get_tags()
-        self.links = self.__get_links()
-        self.text = self.__get_text()
 
     # *****Special methods*****
     def __str__(self):
@@ -44,18 +41,18 @@ class Soup(Sauce):
                     tag.decompose()
         return beautiful_soup
 
-    def __get_links(self, url_pattern=''):
+    def get_links(self, url_pattern=''):
         link_list = [link.get('href')
                      for link in self.__beautiful_soup.find_all('a')
                      if link.get('href') is not None
                      and re.search(url_pattern, link.get('href')) is not None]
         return link_list
 
-    def __get_tags(self):
+    def get_tags(self):
         tags = self.__beautiful_soup.find_all(True)
         return tags
 
-    def __get_text(self):
+    def get_text(self):
         text_string = ' '.join(self.__beautiful_soup.stripped_strings)
         return text_string
 
@@ -63,7 +60,7 @@ class Soup(Sauce):
 class TagDetails(Soup):
     def __init__(self, url, parser='lxml', filters_list=None):
         Soup.__init__(self, url, parser=parser, filters_list=filters_list)
-        self.__tags = self.tags()
+        self.__tags = self.get_tags()
 
     # *****Special methods*****
     def __str__(self):
