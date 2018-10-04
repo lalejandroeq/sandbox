@@ -1,5 +1,6 @@
 from bs_craping import TagDetails, Soup
 from relational import RelationalMagic
+from exporting import export_matrix
 
 
 def get_relational_tags(url, parser='lxml', filters_list=None):
@@ -24,10 +25,11 @@ my_url = "https://movistar.cr/tv"
 # soup_text = soup.text
 # print(soup_text)
 
-# # Testing hidden tags filters
-# filter_list = ['[style="display: none;"]']
-# relational_tags = get_relational_tags(my_url, filters_list=filter_list)
-# relational_magic = RelationalMagic(relational_tags)
-# relational_magic.print_relational(print_limit=10000)
+# Testing hidden tags filters
+filter_list = ['[style="display: none;"]']
+relational_tags = get_relational_tags(my_url, filters_list=filter_list)
+relational_magic = RelationalMagic(relational_tags)
+matrix = relational_magic.get_relational()
+export_matrix('matrix_test', matrix)
 
 
