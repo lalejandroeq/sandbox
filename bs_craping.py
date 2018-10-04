@@ -56,8 +56,8 @@ class Soup(Sauce):
         return tags
 
     def __get_text(self):
-        for string in self.__beautiful_soup.stripped_strings:
-            print(string)
+        text_string = ' '.join(self.__beautiful_soup.stripped_strings)
+        return text_string
 
 
 class TagDetails(Soup):
