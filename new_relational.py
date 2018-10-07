@@ -30,7 +30,8 @@ class RelationalGen:
 class RelationalOps:
     # Methods will be designed to perform at row level to alter generator on 1 iteration
     def __init__(self, row):
-        self.__row = row
+        self.current_row = row
+        self.__row = self.current_row
         self.__operations_dict = {"=": op.eq,
                                   "!=": op.ne,
                                   "<": op.lt,
@@ -38,6 +39,7 @@ class RelationalOps:
                                   ">": op.gt,
                                   ">=": op.ge}
 
+    # *****Private methods*****
     def __filter_handling(self, column_index, value_to_filter, operator_input):
         try:
             if not self.__operations_dict[operator_input](self.__row[column_index], value_to_filter):
@@ -52,6 +54,7 @@ class RelationalOps:
             raise Exception("Operation {} not available in list of operations"
                             .format(operator_input))
 
+    # *****Public methods*****
     def select_columns(self, col_list):
         if len(col_list) == 1:
             self.__row = self.__row[col_list[0]]
@@ -81,6 +84,13 @@ class RelationalQuery(RelationalGen, RelationalOps):
         RelationalGen.__init__(self, matrix, header)
         self.__relational_generator = self.relational_generator
         self.__query = get_json_object(query_path)
+        self.generator_memory = []
+        self.query_results = self.generator_memory
+
+    # *****Private methods*****
+    def __store_generator(self):
+        if self.get_row() is not None:
+            self.generator_memory.extend([self.get_row()])
 
     def __try_select(self):
         try:
@@ -98,17 +108,24 @@ class RelationalQuery(RelationalGen, RelationalOps):
         except IndexError:
             pass
 
+    def __get_distinct(self):
+        distinct_flag = self.__query["distinct"] == "True"
+        return distinct_flag
+
+    # *****Public methods*****
     def execute_query(self):
         for gen_row in self.__relational_generator:
             RelationalOps.__init__(self, gen_row)
             self.__try_select()
             self.__try_filter()
-            print(self.get_row())
+            if not self.__get_distinct():
+                self.__store_generator()
 
 
 if __name__ == '__main__':
     sample_matrix = [["a", "b", "c", "d"],
                      ["1", "0", "2", 8],
+                     ["1", "0", "4", 6],
                      ["1", "0", "4", 6],
                      ["1", "0", "2", 6],
                      ["1", "0", "2", 4],
@@ -118,3 +135,5 @@ if __name__ == '__main__':
     query_url = "configuration_files/query.json"
     relational_query = RelationalQuery(sample_matrix, True, query_url)
     relational_query.execute_query()
+    results = relational_query.query_results
+    print(results)
