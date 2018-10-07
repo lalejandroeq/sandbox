@@ -1,5 +1,4 @@
 import operator as op
-import csv
 
 
 class RelationalMagic:
@@ -74,13 +73,3 @@ class RelationalMagic:
 
     def runtime_rollback(self):
         self.__relational_matrix = self.__relational_matrix_copy
-
-    def export_to_csv(self,
-                      file_name="Processed_Magic",
-                      folder="C:/Users/Ale/Documents/Python Projects/Crawling/Sandbox_Folder"):
-        file_name_format = file_name + '.csv'
-        file_path = '/'.join([folder, file_name_format])
-        print(file_path)
-        with open(file_path, 'w+', encoding="utf-8", newline='') as f:
-            writer = csv.writer(f)
-            writer.writerows(self.__relational_matrix)
