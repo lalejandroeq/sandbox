@@ -85,12 +85,17 @@ class RelationalQuery(RelationalGen, RelationalOps):
         self.__relational_generator = self.relational_generator
         self.__query = get_json_object(query_path)
         self.generator_memory = []
-        self.query_results = self.generator_memory
+        self.distinct_memory = []
+        self.query_results = self.__implement_results()
 
     # *****Private methods*****
     def __store_generator(self):
         if self.get_row() is not None:
             self.generator_memory.extend([self.get_row()])
+
+    def __distinct_generator(self):
+        if not any(self.get_row() in x for x in [None, self.distinct_memory]):
+            self.distinct_memory.extend([self.get_row()])
 
     def __try_select(self):
         try:
@@ -111,6 +116,12 @@ class RelationalQuery(RelationalGen, RelationalOps):
     def __get_distinct(self):
         distinct_flag = self.__query["distinct"] == "True"
         return distinct_flag
+
+    def __implement_results(self):
+        if self.__get_distinct():
+            return self.distinct_memory
+        else:
+            return self.generator_memory
 
     # *****Public methods*****
     def execute_query(self):
