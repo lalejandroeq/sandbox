@@ -1,5 +1,5 @@
 from bs_craping import TagDetails, Soup
-from relational import RelationalMagic
+from new_relational import RelationalQuery
 from exporting import export_matrix
 
 
@@ -28,8 +28,12 @@ my_url = "https://movistar.cr/tv"
 # Testing hidden tags filters
 filter_list = ['[style="display: none;"]']
 relational_tags = get_relational_tags(my_url, filters_list=filter_list)
-relational_magic = RelationalMagic(relational_tags)
-matrix = relational_magic.get_relational()
-export_matrix('matrix_test', matrix)
+print(relational_tags)
+query_url = "configuration_files/query.json"
+relational_magic = RelationalQuery(relational_tags, query_url)
+relational_magic.execute_query()
+matrix = relational_magic.query_results
+print(matrix)
+# export_matrix('matrix_test', matrix)
 
 

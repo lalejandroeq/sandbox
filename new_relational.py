@@ -7,7 +7,7 @@ class RelationalGen:
     Class will create generator for children to perform operations in one iteration
     Rows iteration could eventually be threaded
     """
-    def __init__(self, matrix, header):
+    def __init__(self, matrix, header=False):
         self.__header = header
         self.__relational_matrix = matrix
         self.relational_generator = self.__create_generator()
@@ -37,7 +37,9 @@ class RelationalOps:
                                   "<": op.lt,
                                   "<=": op.le,
                                   ">": op.gt,
-                                  ">=": op.ge}
+                                  ">=": op.ge,
+                                  "is": op.is_,
+                                  "is not": op.is_not}
 
     # *****Private methods*****
     def __filter_handling(self, column_index, value_to_filter, operator_input):
@@ -68,7 +70,7 @@ class RelationalOps:
                 break
             try:
                 column_index = column_indexes[counter]
-                value_to_filter = values_to_filter[counter]
+                value_to_filter = None if values_to_filter[counter] == "None" else values_to_filter[counter]
                 operator_input = operator_inputs[counter]
             except IndexError:
                 break
@@ -80,28 +82,29 @@ class RelationalOps:
 
 
 class RelationalQuery(RelationalGen, RelationalOps):
-    def __init__(self, matrix, header, query_path):
-        RelationalGen.__init__(self, matrix, header)
+    def __init__(self, matrix, query_path, header=False):
+        RelationalGen.__init__(self, matrix, header=header)
         self.__relational_generator = self.relational_generator
         self.__query = get_json_object(query_path)
-        self.generator_memory = []
-        self.distinct_memory = []
-        self.query_results = self.__implement_results()
+        self.__generator_memory = []
+        self.__distinct_memory = []
+        self.query_results = []
 
     # *****Private methods*****
     def __store_generator(self):
         if self.get_row() is not None:
-            self.generator_memory.extend([self.get_row()])
+            self.__generator_memory.extend([self.get_row()])
 
     def __distinct_generator(self):
-        if not any(self.get_row() in x for x in [None, self.distinct_memory]):
-            self.distinct_memory.extend([self.get_row()])
+        if self.get_row() not in self.__distinct_memory:
+            if self.get_row() is not None:
+                self.__distinct_memory.extend([self.get_row()])
 
     def __try_select(self):
         try:
             column_list = self.__query["select"]["columns"]
             self.select_columns(column_list)
-        except IndexError:
+        except KeyError:
             pass
 
     def __try_filter(self):
@@ -110,18 +113,23 @@ class RelationalQuery(RelationalGen, RelationalOps):
             values_to_filter = self.__query["filters"]["value"]
             operator_inputs = self.__query["filters"]["operation"]
             self.filter_row(column_indexes, values_to_filter, operator_inputs)
-        except IndexError:
+        except KeyError:
             pass
 
     def __get_distinct(self):
-        distinct_flag = self.__query["distinct"] == "True"
+        try:
+            distinct_flag = self.__query["distinct"] == "True"
+        except KeyError:
+            distinct_flag = False
         return distinct_flag
 
     def __implement_results(self):
         if self.__get_distinct():
-            return self.distinct_memory
+            self.__distinct_generator()
+            self.query_results = self.__distinct_memory
         else:
-            return self.generator_memory
+            self.__store_generator()
+            self.query_results = self.__generator_memory
 
     # *****Public methods*****
     def execute_query(self):
@@ -129,8 +137,7 @@ class RelationalQuery(RelationalGen, RelationalOps):
             RelationalOps.__init__(self, gen_row)
             self.__try_select()
             self.__try_filter()
-            if not self.__get_distinct():
-                self.__store_generator()
+            self.__implement_results()
 
 
 if __name__ == '__main__':
@@ -144,7 +151,7 @@ if __name__ == '__main__':
 
     # Queries could eventually be threaded
     query_url = "configuration_files/query.json"
-    relational_query = RelationalQuery(sample_matrix, True, query_url)
+    relational_query = RelationalQuery(sample_matrix, query_url)
     relational_query.execute_query()
     results = relational_query.query_results
     print(results)
