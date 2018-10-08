@@ -1,5 +1,5 @@
 from bs_craping import TagDetails, Soup
-from new_relational import RelationalQuery
+from relational import RelationalQuery
 from exporting import export_matrix
 
 
