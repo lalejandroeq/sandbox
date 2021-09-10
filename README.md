@@ -1,3 +1,3 @@
 # sandbox
 
-Compilation of modules having its own functionality for ocassions
+On demand modules for different purposes from Stock analysis to Web Scraping
